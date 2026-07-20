@@ -7,11 +7,7 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest]
-
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
 
     steps:
       - name: Check out your plugin code
@@ -30,18 +26,8 @@ jobs:
       - name: Build the plugin
         run: cmake --build build --config Release --parallel
 
-      - name: Upload the built VST3 (Windows)
-        if: matrix.os == 'windows-latest'
+      - name: Upload the built VST3
         uses: actions/upload-artifact@v4
         with:
           name: MdottyEQKNOB-Windows-VST3
           path: build/MdottyEQKNOB_artefacts/Release/VST3/**
-
-      - name: Upload the built VST3 + AU (Mac)
-        if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: MdottyEQKNOB-Mac-VST3-AU
-          path: |
-            build/MdottyEQKNOB_artefacts/Release/VST3/**
-            build/MdottyEQKNOB_artefacts/Release/AU/**
