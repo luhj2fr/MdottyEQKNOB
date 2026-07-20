@@ -1,0 +1,47 @@
+name: Build Plugin
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out your plugin code
+        uses: actions/checkout@v4
+
+      - name: Check out JUCE
+        uses: actions/checkout@v4
+        with:
+          repository: juce-framework/JUCE
+          ref: 7.0.12
+          path: JUCE
+
+      - name: Configure the project
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build the plugin
+        run: cmake --build build --config Release --parallel
+
+      - name: Upload the built VST3 (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: MdottyEQKNOB-Windows-VST3
+          path: build/MdottyEQKNOB_artefacts/Release/VST3/**
+
+      - name: Upload the built VST3 + AU (Mac)
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: MdottyEQKNOB-Mac-VST3-AU
+          path: |
+            build/MdottyEQKNOB_artefacts/Release/VST3/**
+            build/MdottyEQKNOB_artefacts/Release/AU/**
